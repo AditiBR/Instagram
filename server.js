@@ -1,9 +1,9 @@
 const express = require('express');
+const users = require('./routes/api/users');
+
 const expressApp = express();
 
-expressApp.get('/', (req,res) => {
-    res.send('Hi');
-})
+expressApp.use('/api/users', users);
 
 //Configure port to run web app
 const port=8080;
