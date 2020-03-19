@@ -20,13 +20,10 @@ expressApp.use('/api/users', users);
 expressApp.use('/api/profile', profile);
 expressApp.use('/api/posts', posts);
 
-
 //Connect to MongoDB
 mongoose.connect(dbConnectionString)
   .then(() => console.log('MongoDB Connected!'))
   .catch(err => console.log(err));
-
-
 
 //Configure port to run web app
 const port=8080;
