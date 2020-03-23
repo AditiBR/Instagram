@@ -5,6 +5,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const keys = require('../../config/keys');
 const passport = require('passport');
+const validateRegisterInput = require('../Validation/register');
+const validateLoginInput = require('../Validation/login');
 
 const router = express.Router();
 
@@ -12,7 +14,14 @@ const router = express.Router();
 // @desc Register user route
 // @access Public
 router.post('/register', (req,res) =>{
-       UserModel.findOne({email: req.body.email})
+
+    //Validate register inputs
+    const {errors, isValid} = validateRegisterInput(req.body)
+    if(!isValid){
+        return res.status(400).json(errors);
+    }
+    
+    UserModel.findOne({email: req.body.email})
      .then(user => {
          //If there is user meaning email alreday exists
          if(user){
@@ -54,6 +63,13 @@ router.post('/register', (req,res) =>{
 // @desc User login route
 // @access Public
 router.post('/login', (req,res) => {
+
+    //Validate login inputs
+    const {errors, isValid} = validateLoginInput(req.body);
+    if(!isValid){
+        return res.status(400).json(errors);
+    }
+    
     UserModel.findOne({email: req.body.email})
       .then(user => {
           if(!user){
