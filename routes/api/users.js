@@ -12,11 +12,7 @@ const router = express.Router();
 // @desc Register user route
 // @access Public
 router.post('/register', (req,res) =>{
-    console.log('inside register');
-    console.log(req.body.name);
-    console.log(req.body.email);
-    console.log(req.body.password);
-    UserModel.findOne({email: req.body.email})
+       UserModel.findOne({email: req.body.email})
      .then(user => {
          //If there is user meaning email alreday exists
          if(user){
