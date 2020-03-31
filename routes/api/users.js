@@ -36,10 +36,11 @@ router.post('/register', (req,res) =>{
              });
              
              const newUser = new UserModel({
-                name: req.body.name,
                 email: req.body.email,
+                fullName: req.body.fullName,
+                userName: req.body.userName,              
                 password: req.body.password,
-                avatar: avatar  
+                avatar: req.body.avatar  
              });
 
              //Encrypt pasword
@@ -69,44 +70,48 @@ router.post('/login', (req,res) => {
     if(!isValid){
         return res.status(400).json(errors);
     }
-    
-    UserModel.findOne({email: req.body.email})
+
+    UserModel.findOne({email: req.body.userNameOrEmail})
       .then(user => {
           if(!user){
-              return res.status(404).json({email: 'User not found'});
-          }
-          else{
-              bcrypt.compare(req.body.password, user.password)
+            UserModel.findOne({userName: req.body.userNameOrEmail})
+                .then(user => {
+                    if(!user){
+                        return res.status(404).json({email: 'Username or email not found. Please provide valid username or email'});
+                    }
+                })                
+            }           
+            bcrypt.compare(req.body.password, user.password)
                 .then(isMatch => {
-                    if(!isMatch){
-                        return res.status(400).json({password: 'Password Incorrect!'});
-                    }
-                    //User is valid if isMatch is true then create JWT token
-                    else{
-                        //Create a JWT payload
-                        const payload = {
-                            id: user.id,
-                            name: user.name,
-                            avatar: user.avatar
-                        };
-
-                        //Create JWT token
-                        jwt.sign(
-                            payload,
-                            keys.secretOrKey,
-                            {expiresIn: 3600},
-                            (err, token) => {
-                                if(err) throw err
-                                res.json({
-                                    success: true,
-                                    token : 'Bearer ' + token
-                                });
-                            }
-                            )                        
-                    }
-                })
-                .catch(err => console.log(err))            
-          }
+                      if(!isMatch){
+                          return res.status(400).json({password: 'Password Incorrect!'});
+                      }
+                      //User is valid if isMatch is true then create JWT token
+                      else{
+                          //Create a JWT payload
+                          const payload = {
+                              id: user.id,
+                              fullName: user.fullName,
+                              email: user.email,
+                              avatar: user.avatar
+                          };
+  
+                          //Create JWT token
+                          jwt.sign(
+                              payload,
+                              keys.secretOrKey,
+                              {expiresIn: 3600},
+                              (err, token) => {
+                                  if(err) throw err
+                                  res.json({
+                                      success: true,
+                                      token : 'Bearer ' + token
+                                  });
+                              }
+                              )                        
+                      }
+                  })
+                .catch(err => console.log(err)) 
       })
       .catch(err => console.log(err));
 });
