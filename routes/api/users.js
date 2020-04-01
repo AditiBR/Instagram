@@ -50,7 +50,20 @@ router.post('/register', (req,res) =>{
                      if(err) throw err;
                      newUser.password = hash;
                      newUser.save()
-                      .then(user => res.json(user))
+                      .then(user =>{ 
+                          res.json(user);
+
+                          //Also create default profile
+                          const userProfile = new ProfileModel({
+                            user: user.id               
+                          });
+
+                          userProfile.save()
+                            .then(profile => {
+                                res.json(profile)
+                            })
+                            .catch(err => console.log(err))
+                        })
                       .catch(err => console.log(err))
                  })
              });
